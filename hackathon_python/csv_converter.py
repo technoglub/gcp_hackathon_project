@@ -2,10 +2,9 @@ import csv
 from geopy.geocoders import Nominatim
 import re
 import string
+import json
 
 def findlatlongkey(locate):
-
-    locate.replace(" E ","EAST")
 
     strlist = locate.split(" ")
     if("BLOCK" in strlist):#find block, if exist remove
@@ -18,14 +17,11 @@ def findlatlongkey(locate):
         strlist.remove(" N ")
     if (" S " in strlist):
         strlist.remove(" S ")
-    if ("&" in strlist):
-        index = strlist.find("&")
-        strlist = strlist[:index]
+
     locate = " ".join(strlist)
     geolocator = Nominatim(user_agent="find coordinates",
                            format_string="%s, San Bernardino, CA")
     location = geolocator.geocode(locate)
-    print(location.address)
     #print("Latitude,   Longitude")
     #print(location.latitude, location.longitude)
     intone = str(location.latitude)[:-4]
@@ -47,14 +43,12 @@ def findlatlongfull(locate):
         strlist.remove("N")
     if ("S" in strlist):
         strlist.remove("S")
-    if ("&" in strlist):
-        index = strlist.find("&")
-        strlist = strlist[:index]
+
     locate = " ".join(strlist)
+
     geolocator = Nominatim(user_agent="find coordinates",
                            format_string="%s, San Bernardino, CA")
     location = geolocator.geocode(locate)
-    print(location.address)
     #print("Latitude,   Longitude")
     #print(location.latitude, location.longitude)
     intone = str(location.latitude)
@@ -69,14 +63,49 @@ def main():
     with open("./csv.csv") as f:
        csv_reader = csv.reader(f)
        b = False
-       a = []
+       locations = []
+       master = dict()
+       c = 0
        for row in csv_reader:
            if b:
-                a.append(row[2])
+                try:
+                    s = findlatlongfull(row[2])
+                    if not s in master:
+                        master[s] = dict()
+                        master[s]["ASSAULT"] = 0
+                        master[s]["MURDER"] = 0
+                        master[s]["THEFT"] = 0
+                        master[s]["RAPE"] = 0
+                        master[s]["GTA"] = 0
+                        master[s]["ROBBERY"] = 0
+                        master[s]["OTHER"] = 0
+
+                    if "ASSAULT" in row[0]:
+                        master[s]["ASSAULT"] += 1
+                    elif "MURDER" in row[0]:
+                        master[s]["MURDER"] += 1
+                    elif "THEFT" in row[0]:
+                        master[s]["THEFT"] += 1
+                    elif "RAPE" in row[0]:
+                        master[s]["RAPE"] += 1
+                    elif "GTA" in row[0]:
+                        master[s]["GTA"] += 1
+                    elif "ROBBERY" in row[0]:
+                        master[s]["ROBBERY"] += 1
+                    else:
+                        master[s]["OTHER"] += 1
+
+                except:
+                    locations.append("")
+                    pass
            else:
                b = True
-    listofKey = list(map(findlatlongfull, a))
-    print(listofKey)
 
+    print(master)
+    json_ = json.dumps(master)
+    print(json_)
+    file = open("json.json", 'w')
+    file.write(json_)
+    file.close()
 
 main()

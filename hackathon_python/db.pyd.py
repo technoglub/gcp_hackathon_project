@@ -1,20 +1,28 @@
 from sqlalchemy import Column, MetaData, String, Integer, Float, create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
 
+engine = create_engine('mysql+mysqldb://ericd:password@0.0.0.0', pool_recycle=3600)
 
-metadata = MetaData()
-crime_data_long = Table('crime_data_long', metadata,
-  Column('id', Integer, primary_key=True),
-  Column('latitude', String),
-  Column('longitude', String),
-  Column('ASSAULT', Integer),
-  Column("MURDER", Integer),
-  Column("THEFT", Integer),
-  Column("RAPE", Integer),
-  Column("GTA", Integer),
-  Column("ROBBERY", Integer),
-  Column("Other", Integer)
-)
+metadata = MetaData(engine)
+
+
+def create_db():
+
+    crime_data_long = Table('crime_data', metadata,
+                            Column('id', Integer, primary_key=True),
+                            Column('latitude', String),
+                            Column('longitude', String),
+                            Column('ASSAULT', Integer),
+                            Column("MURDER", Integer),
+                            Column("THEFT", Integer),
+                            Column("RAPE", Integer),
+                            Column("GTA", Integer),
+                            Column("ROBBERY", Integer),
+                            Column("Other", Integer)
+                            )
+    metadata.create_all()
+
+create_db()
 
 # if "ASSAULT" in row[0]:
 #   master[s]["ASSAULT"] += 1

@@ -18,7 +18,9 @@ def findlatlongkey(locate):
         strlist.remove(" N ")
     if (" S " in strlist):
         strlist.remove(" S ")
-
+    if ("&" in strlist):
+        index = strlist.find("&")
+        strlist = strlist[:index]
     locate = " ".join(strlist)
     geolocator = Nominatim(user_agent="find coordinates",
                            format_string="%s, San Bernardino, CA")
@@ -45,6 +47,9 @@ def findlatlongfull(locate):
         strlist.remove("N")
     if ("S" in strlist):
         strlist.remove("S")
+    if ("&" in strlist):
+        index = strlist.find("&")
+        strlist = strlist[:index]
     locate = " ".join(strlist)
     geolocator = Nominatim(user_agent="find coordinates",
                            format_string="%s, San Bernardino, CA")

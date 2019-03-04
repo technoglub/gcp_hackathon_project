@@ -1,10 +1,11 @@
+#!/usr/bin/python3
 from flask import Flask
 import json
 
 
 app = Flask(__name__)
 
-@app_route('/')
+@app.route('/')
 def ret_none():
     return "No data available\n";
 

@@ -68,7 +68,7 @@ def main():
        b = False
        locations = []
        master = dictls
-rebootif b:
+    if b:
                 try:
                     s = findlatlongfull(row[2])
                     if not s in master:

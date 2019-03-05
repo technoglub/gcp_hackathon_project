@@ -11,6 +11,12 @@ def ret_none():
     return "No data available\n";
 
 
+@app.route('/json')
+def ret_json():
+    with open("json_updated.json") as f:
+        json_data = f.read()
+    return json_data
+
 @app.errorhandler(404)
 def get404d(num):
 
@@ -65,4 +71,4 @@ def ret_coords(variable):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=True, port=80)
+    app.run("0.0.0.0", debug=False, port=80)

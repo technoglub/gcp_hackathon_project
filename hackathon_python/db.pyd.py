@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from sqlalchemy import Column, MetaData, String, Integer, Float, create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
 

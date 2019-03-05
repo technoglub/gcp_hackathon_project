@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from flask import Flask
 import json
-
+import re
 
 app = Flask(__name__)
 
@@ -19,6 +19,17 @@ def get404d(num):
 
 @app.route('/<variable>')
 def ret_coords(variable):
+
+    comma_count = 0
+    for i, v in enumerate(variable):
+        if ',' == v:
+            comma_count += 1
+
+    if not comma_count == 1:
+        return "Got that comma problem!"
+
+    if not ',' in variable:
+        return "Invalid format"
 
     print(variable)
     # Read the formatted data and compare it to the GPS coordinates

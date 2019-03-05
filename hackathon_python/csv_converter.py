@@ -4,9 +4,9 @@ import re
 import string
 import json
 
-def findlatlongkey(locate):
-
-    strlist = locate.split(" ")
+''' function for normalizing address strings '''
+def sanitize_street_address(street_address_string):
+    strlist = street_address_string.spit(' ')
     if("BLOCK" in strlist):#find block, if exist remove
         strlist.remove("BLOCK")
     if (" W " in strlist):
@@ -17,8 +17,12 @@ def findlatlongkey(locate):
         strlist.remove(" N ")
     if (" S " in strlist):
         strlist.remove(" S ")
+    return ' '.join(strlist)
 
-    locate = " ".join(strlist)
+def findlatlongkey(locate): # Here, `locate` is a string describing a street adress, or some other address resolvable by Nominatim's geolocation
+
+    locate = sanitize_street_address(locate)
+
     geolocator = Nominatim(user_agent="find coordinates",
                            format_string="%s, San Bernardino, CA")
     location = geolocator.geocode(locate)
@@ -32,19 +36,7 @@ def findlatlongkey(locate):
 
 def findlatlongfull(locate):
 
-    strlist = locate.split(" ")
-    if("BLOCK" in strlist):#find block, if exist remove
-        strlist.remove("BLOCK")
-    if ("W" in strlist):
-        strlist.remove("W")
-    if ("E"  in strlist):
-        strlist.remove("E")
-    if ("N" in strlist):
-        strlist.remove("N")
-    if ("S" in strlist):
-        strlist.remove("S")
-
-    locate = " ".join(strlist)
+    locate = sanitize_street_address(locate)
 
     geolocator = Nominatim(user_agent="find coordinates",
                            format_string="%s, San Bernardino, CA")

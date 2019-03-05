@@ -44,10 +44,11 @@ def ret_coords(variable):
 
     print(lat)
     print(lon)
-
-    lat = "{0:.2f}".format(float(lat))
-    lon = "{0:.2f}".format(float(lon))
-
+    try:
+        lat = "{0:.2f}".format(float(lat))
+        lon = "{0:.2f}".format(float(lon))
+    except Exception as e:
+        return "There was an exception: " + str(e)
     j = lat+lon
 
     new_json = dict()
@@ -64,4 +65,4 @@ def ret_coords(variable):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=True)
+    app.run("0.0.0.0", debug=True, port=80)

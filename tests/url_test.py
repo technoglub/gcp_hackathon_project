@@ -6,7 +6,7 @@ class test_url():
     '''Class that tests url endpoints to make sure the output is what's expected'''
 
     def __init__(self):
-        self.url = 'http://127.0.0.1:5000/'
+        self.url = 'http://127.0.0.1:80/'
         self.bad_lat = '123'
         self.bad_lon = '456'
         self.good_lat = '34.10'
@@ -42,13 +42,24 @@ class test_url():
         self.assert_200(r)
         assert(r.text == "Got that comma problem!")
 
+        r = requests.get(self.url + "," + self.good_lon + ',' + self.good_lat + ',')
+        self.assert_200(r)
 
 def run_tests():
     tester = test_url()
+    print("Testing empty string")
     tester.test_empty()
+
+    print("Testing string with no commas")
     tester.test_no_comma()
+
+    print("Testing with 1 comma bad coordinates")
     tester.test_one_comma_bad_coords()
+
+    print("Testing valid input")
     tester.test_one_comma_good_coords()
+
+    print("Testing if two or more commas")
     tester.test_two_comma()
 
 

@@ -1,3 +1,5 @@
+#!./../env/bin/python3
+
 import requests
 
 
@@ -6,7 +8,7 @@ class test_url():
     '''Class that tests url endpoints to make sure the output is what's expected'''
 
     def __init__(self):
-        self.url = 'http://127.0.0.1:5000/'
+        self.url = 'http://127.0.0.1:80/'
         self.bad_lat = '123'
         self.bad_lon = '456'
         self.good_lat = '34.10'

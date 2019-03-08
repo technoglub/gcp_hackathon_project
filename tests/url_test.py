@@ -11,6 +11,10 @@ class test_url():
         self.bad_lon = '456'
         self.good_lat = '34.10'
         self.good_lon = '-117.68'
+        self.no_data_text = "No data available\n"
+        self.comma_error_text = "Got that comma problem!"
+        self.string_to_float_exception_text = "There was an exception: could not convert string to float: "
+        self.good_coords_string = '{"ASSAULT": 0, "MURDER": 0, "THEFT": 0, "RAPE": 0, "GTA": 0, "ROBBERY": 0, "OTHER": 1}'
 
     def assert_200(self, r):
         assert(r.status_code == 200)
@@ -19,28 +23,28 @@ class test_url():
         r = requests.get(self.url)
         txt = r.text
         self.assert_200(r)
-        assert(txt == "No data available\n")
+        assert(txt == self.no_data_text)
 
     def test_no_comma(self):
         r = requests.get(self.url + self.bad_lat)
         self.assert_200(r)
         text = r.text
-        assert(text == "Got that comma problem!")
+        assert(text == self.comma_error_text)
 
     def test_one_comma_bad_coords(self):
         r = requests.get(self.url + self.bad_lat + ',')
         self.assert_200(r)
-        assert(r.text == "There was an exception: could not convert string to float: ")
+        assert(r.text == self.string_to_float_exception_text)
 
     def test_one_comma_good_coords(self):
         r = requests.get(self.url + self.good_lat + ',' + self.good_lon)
         self.assert_200(r)
-        assert(r.text == '{"ASSAULT": 0, "MURDER": 0, "THEFT": 0, "RAPE": 0, "GTA": 0, "ROBBERY": 0, "OTHER": 1}')
+        assert(r.text == self.good_coords_string)
 
     def test_two_comma(self):
         r = requests.get(self.url + self.good_lon +',' + self.good_lat + ',')
         self.assert_200(r)
-        assert(r.text == "Got that comma problem!")
+        assert(r.text == self.comma_error_text)
 
         r = requests.get(self.url + "," + self.good_lon + ',' + self.good_lat + ',')
         self.assert_200(r)

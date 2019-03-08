@@ -19,7 +19,6 @@ class StressTester():
         self.threads = []
         self.q = queue.Queue()
 
-
     def stress_test(self):
         '''Creates a bunch of threads to spam the servers'''
 
@@ -69,8 +68,11 @@ def main():
     while not tester.q.empty():
         timings.append(tester.q.get())
 
+    avg = 0
     for i in timings:
+        avg += i.total_seconds()
         print (i)
-
+    avg /= len(timings)
+    print("Average = ", avg)
 
 main()

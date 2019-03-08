@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask
 import json
-import re
 
 app = Flask(__name__)
 
@@ -37,7 +36,6 @@ def ret_coords(variable):
     if not ',' in variable:
         return "Invalid format"
 
-    print(variable)
     # Read the formatted data and compare it to the GPS coordinates
     with open("json_updated.json") as f:
         json_data = f.read()
@@ -48,8 +46,6 @@ def ret_coords(variable):
     # get the latitude and longitude from the URL with ',' as a delimiter
     lat, lon = variable.split(',')
 
-    print(lat)
-    print(lon)
     try:
         lat = "{0:.2f}".format(float(lat))
         lon = "{0:.2f}".format(float(lon))
@@ -71,4 +67,4 @@ def ret_coords(variable):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=False, port=80)
+    app.run("0.0.0.0", debug=False, port=5000)

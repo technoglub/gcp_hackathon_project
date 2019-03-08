@@ -1,11 +1,17 @@
+#!./../env/bin/python3
+
 import threading
 import requests
 from _datetime import datetime
 import random
 import queue
+import sys
 
 
 class StressTester():
+
+    ''' Class that tests the servers. If no command line input, it hits localhost,
+        if there's an IP passed in, it will use that instead '''
 
     def __init__(self, url="http://LOCALHOST:5000/"):
         self.url = url
@@ -35,13 +41,35 @@ class StressTester():
 
 
 def main():
-    tester = StressTester()
-    tester.stress_test()
-    a = []
-    while not tester.q.empty():
-        a.append(tester.q.get())
+    try:
+        sys.argv[1]
+        print(sys.argv[1])
+        ip = sys.argv[1]
+        dot_count = 0
+        for i, v in enumerate(ip):
+            if v == '.':
+                dot_count += 1
 
-    for i in a:
+        if dot_count != 3:
+            print("Invalid format")
+            return
+
+        # initialize the testing class if the input is valid
+        tester = StressTester(ip)
+    except IndexError:
+        tester = StressTester()
+        pass
+    try:
+        tester.stress_test()
+    except Exception as e:
+        print(e)
+        return
+
+    timings = []
+    while not tester.q.empty():
+        timings.append(tester.q.get())
+
+    for i in timings:
         print (i)
 
 

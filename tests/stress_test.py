@@ -23,6 +23,7 @@ class StressTester():
 
 
     def make_request(self):
+        ''' Picks a random known coordinate '''
         start = datetime.now()
         indx = random.randint(0,5)
         print (indx)

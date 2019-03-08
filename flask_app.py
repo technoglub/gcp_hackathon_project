@@ -67,4 +67,4 @@ def ret_coords(variable):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=False, port=80)
+    app.run("0.0.0.0", debug=False, port=5000)

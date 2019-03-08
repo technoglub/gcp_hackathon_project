@@ -22,7 +22,7 @@ class StressTester():
     def stress_test(self):
         '''Creates a bunch of threads to spam the servers'''
 
-        for i in range(128):
+        for i in range(1000):
             t = threading.Thread(target=self.make_request)
             t.start()
 

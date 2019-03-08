@@ -1,6 +1,0 @@
-runtime: python36
-
-handlers:
-- url: /*
-  script: flask_app.py
-

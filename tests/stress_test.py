@@ -11,21 +11,23 @@ import sys
 class StressTester():
 
     ''' Class that tests the servers. If no command line input, it hits localhost,
-        if there's an IP passed in, it will use that instead '''
+        if there's an IP passed in, it will use that instead.
+    '''
 
     def __init__(self, url="http://LOCALHOST:5000/"):
         self.url = url
         self.port = 5000
         self.threads = []
         self.q = queue.Queue()
+        self.tasks = 2000
 
     def stress_test(self):
-        '''Creates a bunch of threads to spam the servers'''
+        '''Creates a bunch of threads to spam the servers
+        '''
 
-        for i in range(1000):
+        for i in range(self.tasks):
             t = threading.Thread(target=self.make_request)
             t.start()
-
 
     def make_request(self):
         ''' Picks a random known coordinate '''
@@ -40,6 +42,7 @@ class StressTester():
 
 
 def main():
+    start_time = datetime.now()
     try:
         sys.argv[1]
         print(sys.argv[1])
@@ -74,5 +77,8 @@ def main():
         print (i)
     avg /= len(timings)
     print("Average = ", avg)
+    time_it_took = datetime.now() - start_time
+    print("Script ran for a total of ", time_it_took.total_seconds())
+    print(tester.tasks/time_it_took.total_seconds(), " requests per second")
 
 main()

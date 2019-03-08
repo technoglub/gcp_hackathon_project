@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def ret_none():
-    return "No data available\n";
+    return "No data available";
 
 
 @app.route('/json')

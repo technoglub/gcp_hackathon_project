@@ -3,17 +3,16 @@
 import requests
 
 
-
-class test_url():
+class TestUrl:
     '''Class that tests url endpoints to make sure the output is what's expected'''
 
     def __init__(self):
-        self.url = 'http://127.0.0.1:80/'
+        self.url = 'http://127.0.0.1:5000/'
         self.bad_lat = '123'
         self.bad_lon = '456'
         self.good_lat = '34.10'
         self.good_lon = '-117.68'
-        self.no_data_text = "No data available\n"
+        self.no_data_text = "No data available"
         self.comma_error_text = "Got that comma problem!"
         self.string_to_float_exception_text = "There was an exception: could not convert string to float: "
         self.good_coords_string = '{"ASSAULT": 0, "MURDER": 0, "THEFT": 0, "RAPE": 0, "GTA": 0, "ROBBERY": 0, "OTHER": 1}'
@@ -52,7 +51,7 @@ class test_url():
         self.assert_200(r)
 
 def run_tests():
-    tester = test_url()
+    tester = TestUrl()
     print("Testing empty string")
     tester.test_empty()
 

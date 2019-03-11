@@ -1,5 +1,5 @@
 #!./../env/bin/python3
-
+import sys
 import requests
 
 
@@ -12,7 +12,7 @@ class TestUrl:
         self.bad_lon = '456'
         self.good_lat = '34.10'
         self.good_lon = '-117.68'
-        self.no_data_text = "No data available"
+        self.no_data_text = "No data available\n"
         self.comma_error_text = "Got that comma problem!"
         self.string_to_float_exception_text = "There was an exception: could not convert string to float: "
         self.good_coords_string = '{"ASSAULT": 0, "MURDER": 0, "THEFT": 0, "RAPE": 0, "GTA": 0, "ROBBERY": 0, "OTHER": 1}'
@@ -52,6 +52,13 @@ class TestUrl:
 
 def run_tests():
     tester = TestUrl()
+
+    try:
+        tester.url = sys.argv[1]
+
+    except:
+        pass
+
     print("Testing empty string")
     tester.test_empty()
 
@@ -66,6 +73,6 @@ def run_tests():
 
     print("Testing if two or more commas")
     tester.test_two_comma()
-
+    print("All tests passed")
 
 run_tests()

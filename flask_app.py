@@ -1,8 +1,44 @@
 #!/usr/bin/env python3
 from flask import Flask
 import json
+from sqlalchemy.orm import sessionmaker
+
+# user library that contains the format for table entries.
+import modals
+
 
 app = Flask(__name__)
+
+db = modals.CloudDB()
+
+
+@app.route('/testing')
+def make_db_query():
+
+    d_arr = []
+    # assaults = Column(Integer)
+    # murders = Column(Integer)
+    # thefts = Column(Integer)
+    # rapes = Column(Integer)
+    # gta = Column(Integer)
+    # robberies = Column(Integer)
+    # other = Column(Integer)
+
+    for entry in db.Session.query(modals.Location):
+        d = dict()
+        d['lat'] = entry.latitude
+        d['lon'] = entry.longitude
+        d['assaults'] = entry.assaults
+        d['murders'] = entry.murders
+        d['thefts'] = entry.thefts
+        d['rapes'] = entry.rapes
+        d['gta'] = entry.gta
+        d['robberies'] = entry.robberies
+        d['other'] = entry.other
+        d_arr.append(d)
+
+        print(d)
+    return str(d_arr)
 
 
 @app.route('/')

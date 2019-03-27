@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, request
 import json
-from sqlalchemy.orm import sessionmaker
 
 # user library that contains the format for table entries.
 import modals
@@ -47,12 +46,12 @@ def get_valid_coords(lat, lon):
     valid_coords = []
     range_x = 0.1
     range_y = 0.1
-    for i in range(3):
-        for j in range(3):
+    for i in range(20):
+        for j in range(20):
             valid_coords.append(("{0:.2f}".format(lat + range_x), "{0:.2f}".format(lon + range_y)))
-            range_y -= 0.1
+            range_y -= 0.01
         range_y = 0.1
-        range_x -= 0.1
+        range_x -= 0.01
     return valid_coords
 
 

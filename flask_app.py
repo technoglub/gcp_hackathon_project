@@ -22,19 +22,43 @@ def make_db_query():
     if lat is None or lon is None:
         return "No data available"
 
-    for entry in db.Session.query(modals.Location).filter_by(latitude=lat, longitude=lon).all():
+    vals_to_check = get_valid_coords(lat, lon)
 
+
+    for entry in db.Session.query(modals.Location) \
+            .filter(modals.Location.latitude.in_(k for k, _ in vals_to_check)) \
+            .filter(modals.Location.longitude.in_(z for _, z in vals_to_check)):
         d = entry.__dict__
         entry_json = dict()
-        for k, v in d.items():
-            if k != "_sa_instance_state":
-                entry_json[k] = v
+        for i, j in d.items():
+            if j != "_sa_instance_state":
+                entry_json[i] = j
 
         entry_json = json.dumps(str(entry_json))
         d_arr.append(entry_json)
 
     db.Session.close()
-    return str(entry_json)
+    return str(d_arr)
+
+def get_valid_coords(lat, lon):
+
+    lat = float(lat)
+    lon = float(lon)
+    valid_coords = []
+    range_x = 0.1
+    range_y = 0.1
+    for i in range(3):
+        for j in range(3):
+            valid_coords.append(("{0:.2f}".format(lat + range_x), "{0:.2f}".format(lon + range_y)))
+            range_y -= 0.1
+        range_y = 0.1
+        range_x -= 0.1
+    return valid_coords
+
+
+@app.route('/testing/j')
+def dump_db():
+    pass
 
 
 @app.route('/')

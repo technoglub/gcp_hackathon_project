@@ -14,13 +14,17 @@ db = modals.CloudDB()
 @app.route('/testing')
 def make_db_query():
 
+    ''' hits the database based on url parameters '''
+
     d_arr = []
+    # ip.addr/testing?lat=12.34&lon=43.21
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
 
     if lat is None or lon is None:
         return "No data available"
 
+    # get list of coords to check
     vals_to_check = get_valid_coords(lat, lon)
 
     for entry in db.Session.query(modals.Location) \
@@ -41,6 +45,8 @@ def make_db_query():
 
 def get_valid_coords(lat, lon):
 
+    ''' returns a list of coordinate tuples to check against the DB '''
+
     lat = float(lat)
     lon = float(lon)
     valid_coords = []
@@ -48,6 +54,7 @@ def get_valid_coords(lat, lon):
     range_y = 0.1
     for i in range(20):
         for j in range(20):
+            # math: 20 * 0.01 is .2 so this list contains every coordinate +- 0.1 which is 400 coordinates... Maybe there's a query.get_if(latitude <= lat + 0.1 and latitude >= lat - 0.1)
             valid_coords.append(("{0:.2f}".format(lat + range_x), "{0:.2f}".format(lon + range_y)))
             range_y -= 0.01
         range_y = 0.1
@@ -55,10 +62,15 @@ def get_valid_coords(lat, lon):
     return valid_coords
 
 
-@app.route('/testing/j')
+@app.route('/testing/dump')
 def dump_db():
-    pass
 
+    a = []
+    for entry in db.Session.query(modals.Location).all():
+        a.append(entry.__dict__)
+
+    to_ret = json.dumps(str(a))
+    return to_ret
 
 @app.route('/')
 def ret_none():

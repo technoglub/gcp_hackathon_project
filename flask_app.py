@@ -24,21 +24,21 @@ def make_db_query():
 
     vals_to_check = get_valid_coords(lat, lon)
 
-
     for entry in db.Session.query(modals.Location) \
             .filter(modals.Location.latitude.in_(k for k, _ in vals_to_check)) \
             .filter(modals.Location.longitude.in_(z for _, z in vals_to_check)):
         d = entry.__dict__
         entry_json = dict()
         for i, j in d.items():
-            if j != "_sa_instance_state":
+            if i != "_sa_instance_state":
                 entry_json[i] = j
 
-        entry_json = json.dumps(str(entry_json))
         d_arr.append(entry_json)
 
+    data_to_ret = json.dumps(d_arr)
     db.Session.close()
-    return str(d_arr)
+    return data_to_ret
+
 
 def get_valid_coords(lat, lon):
 

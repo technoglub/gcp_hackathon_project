@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask
+from flask import Flask, request
 import json
 from sqlalchemy.orm import sessionmaker
 
@@ -16,29 +16,19 @@ db = modals.CloudDB()
 def make_db_query():
 
     d_arr = []
-    # assaults = Column(Integer)
-    # murders = Column(Integer)
-    # thefts = Column(Integer)
-    # rapes = Column(Integer)
-    # gta = Column(Integer)
-    # robberies = Column(Integer)
-    # other = Column(Integer)
+    lat = request.args.get('lat', None)
+    lon = request.args.get('lon', None)
 
-    for entry in db.Session.query(modals.Location):
-        d = dict()
-        d['lat'] = entry.latitude
-        d['lon'] = entry.longitude
-        d['assaults'] = entry.assaults
-        d['murders'] = entry.murders
-        d['thefts'] = entry.thefts
-        d['rapes'] = entry.rapes
-        d['gta'] = entry.gta
-        d['robberies'] = entry.robberies
-        d['other'] = entry.other
-        d_arr.append(d)
+    if lat is None or lon is None:
+        return "No data available"
 
-        print(d)
-    return str(d_arr)
+    for entry in db.Session.query(modals.Location).filter_by(latitude=lat, longitude=lon).all():
+
+        entry_json = json.dumps(str(entry.__dict__))
+        d_arr.append(entry_json)
+
+    db.Session.close()
+    return str(entry_json)
 
 
 @app.route('/')

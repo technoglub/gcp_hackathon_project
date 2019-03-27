@@ -24,7 +24,13 @@ def make_db_query():
 
     for entry in db.Session.query(modals.Location).filter_by(latitude=lat, longitude=lon).all():
 
-        entry_json = json.dumps(str(entry.__dict__))
+        d = entry.__dict__
+        entry_json = dict()
+        for k, v in d.items():
+            if k != "_sa_instance_state":
+                entry_json[k] = v
+
+        entry_json = json.dumps(str(entry_json))
         d_arr.append(entry_json)
 
     db.Session.close()
@@ -93,4 +99,4 @@ def ret_coords(variable):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=False, port=5000)
+    app.run("0.0.0.0", debug=True, port=5000)

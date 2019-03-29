@@ -34,7 +34,7 @@ def make_db_query():
 
     for entry in db.Session.query(modals.Location).filter(and_(
         modals.Location.longitude <= upper_lon, modals.Location.longitude >= lower_lon,
-        modals.Location.latitude <= upper_lat, modals.Location.longitude >= lower_lat
+        modals.Location.latitude <= upper_lat, modals.Location.latitude >= lower_lat
                                                                     )):
         d = entry.__dict__
         entry_json = dict()
@@ -48,6 +48,7 @@ def make_db_query():
     db.Session.flush()
     db.Session.commit()
     # threaded_session.remove()
+    print(len(d_arr))
     return data_to_ret
 
 

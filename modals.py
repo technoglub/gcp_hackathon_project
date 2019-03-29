@@ -14,10 +14,10 @@ Base = declarative_base()
 
 class CloudDB:
 
-    user = 'root'
-    paswd = 'valdi0209'
+    user = ''
+    paswd = ''
     dialect = 'mysql+pymysql' # db_type + python_driver
-    server = '35.193.63.45'
+    server = ''
     port = '3306'
     db = 'android_backend' # database created via googles UI
 

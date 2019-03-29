@@ -14,10 +14,10 @@ Base = declarative_base()
 
 class CloudDB:
 
-    user = ''
-    paswd = ''
+    user = 'root'
+    paswd = 'valdi0209'
     dialect = 'mysql+pymysql' # db_type + python_driver
-    server = ''
+    server = '35.193.63.45'
     port = '3306'
     db = 'android_backend' # database created via googles UI
 
@@ -25,7 +25,7 @@ class CloudDB:
         self.metadata = metadata
         self.base = declarative_base()
         self.url = self.dialect + '://' + self.user + ':' + self.paswd + '@' + self.server + ":" + self.port + '/' + self.db
-        self.engine = create_engine(self.url, pool_size=2000)
+        self.engine = create_engine(self.url, pool_size=2000, echo=True)
         session = sessionmaker()
         session.configure(bind=self.engine)
         self.Session = session()
@@ -45,7 +45,7 @@ class Location(Base):
         we can access this variable directly to create and store data
     '''
 
-    __tablename__ = "locations"
+    __tablename__ = "locations2"
     id = Column(Integer, autoincrement=True, primary_key=True)
     latitude = Column(Float)
     longitude = Column(Float)

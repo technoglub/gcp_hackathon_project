@@ -29,20 +29,10 @@ def make_db_query():
     lower_lat = float(lat - 0.1)
     lower_lon = float(lon - 0.1)
 
-
-
-    threaded_session = db.Session
-
     if lat is None or lon is None:
         return "No data available"
 
-    # get list of coords to check
-    vals_to_check = get_valid_coords(lat, lon)
-
-    # for entry in threaded_session.query(modals.Location) \
-    #         .filter(modals.Location.latitude.in_(k for k, _ in vals_to_check)) \
-    #         .filter(modals.Location.longitude.in_(z for _, z in vals_to_check)):
-    for entry in threaded_session.query(modals.Location).filter(and_(
+    for entry in db.Session.query(modals.Location).filter(and_(
         modals.Location.longitude <= upper_lon, modals.Location.longitude >= lower_lon,
         modals.Location.latitude <= upper_lat, modals.Location.longitude >= lower_lat
                                                                     )):

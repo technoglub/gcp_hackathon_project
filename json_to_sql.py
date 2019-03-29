@@ -86,27 +86,15 @@ def convert_json_to_db(key ,data, session):
 
 def main():
 
-    user = ''
-    paswd = ''
-    dialect = 'mysql+pymysql' # db_type + python_driver
-    server = ''
-    port = '3306'
-    db = 'android_backend' # database created via googles UI
-
-    url = dialect + '://' + user + ':' + paswd + '@' + server + ":" + port + '/android_backend'
-    engine = create_engine(url)
-    session = sessionmaker()
-    session.configure(bind=engine)
-    Session = session()
-    locs = create_table(engine)
-
+    db = modals.CloudDB()
+    create_table(db.engine)
     with open("json_updated.json") as f:
         json_data = f.read()
 
     loc_vals = json.loads(json_data)
 
     for keys in loc_vals:
-        convert_json_to_db(keys, loc_vals[keys], Session)
+        convert_json_to_db(keys, loc_vals[keys], db.Session)
 
 
 

@@ -1,8 +1,7 @@
-from sqlalchemy import String, Column, Integer
+from sqlalchemy import String, Column, Integer, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import MetaData, create_engine
-from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 metadata = MetaData()
 Base = declarative_base()
@@ -26,10 +25,16 @@ class CloudDB:
         self.metadata = metadata
         self.base = declarative_base()
         self.url = self.dialect + '://' + self.user + ':' + self.paswd + '@' + self.server + ":" + self.port + '/' + self.db
-        self.engine = create_engine(self.url)
+        self.engine = create_engine(self.url, pool_size=2000)
         session = sessionmaker()
         session.configure(bind=self.engine)
         self.Session = session()
+
+    def make_scoped_session(self):
+
+        session = sessionmaker()
+        session.configure(bind=self.engine)
+        return scoped_session(session)
 
 
 class Location(Base):
@@ -42,8 +47,8 @@ class Location(Base):
 
     __tablename__ = "locations"
     id = Column(Integer, autoincrement=True, primary_key=True)
-    latitude = Column(String(20))
-    longitude = Column(String(20))
+    latitude = Column(Float)
+    longitude = Column(Float)
     assaults = Column(Integer)
     murders = Column(Integer)
     thefts = Column(Integer)

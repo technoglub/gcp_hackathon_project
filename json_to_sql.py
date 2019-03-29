@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import json
-from sqlalchemy import String, Column, Integer, Table, create_engine
+from sqlalchemy import String, Column, Integer, Table, create_engine, Float
 # from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 # from sqlalchemy import MetaData
@@ -47,10 +47,10 @@ import modals
 
 
 def create_table(engine):
-    locs = Table('locations', modals.metadata,
+    locs = Table('locations2', modals.metadata,
           Column('id',Integer, primary_key=True, autoincrement=True),
-          Column('latitude', String),
-          Column('longitude', String),
+          Column('latitude', Float),
+          Column('longitude', Float),
           Column('assaults', Integer),
           Column('murders', Integer),
           Column('thefts', Integer),
@@ -73,10 +73,13 @@ def convert_json_to_db(key ,data, session):
     except:
         print(key)
         return
-
-    lat = str(lat)
-    lon = str(lon)
-    data_to_input = modals.Location(lat, lon, data)
+    lat = float(lat)
+    lon = float(lon)
+    data_to_input = modals.Location(latitude=lat, longitude=lon, assaults=data['ASSAULT'],
+                                    murders=data["MURDER"], rapes=data["RAPE"],
+                                    thefts=data["THEFT"], gta=data["GTA"],
+                                    robberies=data["ROBBERY"], other=data["OTHER"]
+                                    )
     session.add(data_to_input)
     session.flush()
     session.commit()

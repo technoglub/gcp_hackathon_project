@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, request
 import json
-
+from sqlalchemy import and_
 # user library that contains the format for table entries.
 import modals
 
@@ -21,25 +21,43 @@ def make_db_query():
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
 
+    lat = float(lat)
+    lon = float(lon)
+
+    upper_lat = float(lat + 0.1)
+    upper_lon = float(lon + 0.1)
+    lower_lat = float(lat - 0.1)
+    lower_lon = float(lon - 0.1)
+
+
+
+    threaded_session = db.Session
+
     if lat is None or lon is None:
         return "No data available"
 
     # get list of coords to check
     vals_to_check = get_valid_coords(lat, lon)
 
-    for entry in db.Session.query(modals.Location) \
-            .filter(modals.Location.latitude.in_(k for k, _ in vals_to_check)) \
-            .filter(modals.Location.longitude.in_(z for _, z in vals_to_check)):
+    # for entry in threaded_session.query(modals.Location) \
+    #         .filter(modals.Location.latitude.in_(k for k, _ in vals_to_check)) \
+    #         .filter(modals.Location.longitude.in_(z for _, z in vals_to_check)):
+    for entry in threaded_session.query(modals.Location).filter(and_(
+        modals.Location.longitude <= upper_lon, modals.Location.longitude >= lower_lon,
+        modals.Location.latitude <= upper_lat, modals.Location.longitude >= lower_lat
+                                                                    )):
         d = entry.__dict__
         entry_json = dict()
         for i, j in d.items():
-            if i != "_sa_instance_state":
+            if i != "_sa_instance_state" and i != "id":
                 entry_json[i] = j
 
         d_arr.append(entry_json)
 
     data_to_ret = json.dumps(d_arr)
-    db.Session.close()
+    db.Session.flush()
+    db.Session.commit()
+    # threaded_session.remove()
     return data_to_ret
 
 

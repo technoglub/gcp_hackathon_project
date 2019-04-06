@@ -1,7 +1,8 @@
-from sqlalchemy import String, Column, Integer, Float
+from sqlalchemy import String, Column, Integer, Float, Date, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.ext.automap import automap_base
 
 metadata = MetaData()
 Base = declarative_base()
@@ -10,6 +11,36 @@ Base = declarative_base()
 # session = sessionmaker()
 # session.configure(bind=engine)
 # Session = session()
+
+
+def create_table(db):
+    locs = Table('user_interface', metadata,
+                 Column('id',Integer, primary_key=True, autoincrement=True),
+                 Column("date", Date),
+                 Column("gta", Integer),
+                 Column("assault", Integer),
+                 Column("murder", Integer),
+                 Column("theft", Integer),
+                 Column("sexual_assault", Integer),
+                 Column("robbery", Integer),
+                 Column("other", Integer),
+                 )
+
+    db.metadata.create_all(db.engine)
+
+    return locs
+
+def get_location_schematic():
+    data_to_enter = dict()
+    data_to_enter["gta"] = 0
+    data_to_enter["assaults"] = 0
+    data_to_enter["murders"] = 0
+    data_to_enter["thefts"] = 0
+    data_to_enter["rapes"] = 0
+    data_to_enter["robberies"] = 0
+    data_to_enter["other"] = 0
+    data_to_enter["date"] = 0
+    return data_to_enter
 
 
 class CloudDB:
@@ -23,12 +54,13 @@ class CloudDB:
 
     def __init__(self):
         self.metadata = metadata
-        self.base = declarative_base()
+        self.base = Base
         self.url = self.dialect + '://' + self.user + ':' + self.paswd + '@' + self.server + ":" + self.port + '/' + self.db
-        self.engine = create_engine(self.url, pool_size=2000, echo=True)
+        self.engine = create_engine(self.url, echo=True)
         session = sessionmaker()
         session.configure(bind=self.engine)
         self.Session = session()
+
 
     def make_scoped_session(self):
 
@@ -57,17 +89,82 @@ class Location(Base):
     robberies = Column(Integer)
     other = Column(Integer)
 
-    # def __init__(self, lat, lon, dictionary_in):
-    #     ''' Constructor for inserting data into the Location table in the database
-    #         Takes in a location key from our JSON file, and a corresponding dictionary to that key
-    #         and creates a row in the data base. You would then need to call SQLAlchemy to insert that row into the database and commit()
-    #     '''
-    #     self.latitude = lat
-    #     self.longitude = lon
-    #     self.assaults = dictionary_in['ASSAULT']
-    #     self.murders = dictionary_in['MURDER']
-    #     self.thefts = dictionary_in['THEFT']
-    #     self.rapes = dictionary_in['RAPE']
-    #     self.gta = dictionary_in['GTA']
-    #     self.robberies = dictionary_in['ROBBERY']
-    #     self.other = dictionary_in['OTHER']
+
+class UserInterface(Base):
+
+    '''
+        This is the main data we store
+        Since it's inherited from the sqlalchemy Base class,
+        we can access this variable directly to create and store data
+    '''
+
+    __tablename__ = "user_interface"
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    assaults = Column(Integer)
+    murders = Column(Integer)
+    thefts = Column(Integer)
+    rapes = Column(Integer)
+    gta = Column(Integer)
+    robberies = Column(Integer)
+    other = Column(Integer)
+
+class DatedLocation(Base):
+        '''
+            This is the main data we store
+            Since it's inherited from the sqlalchemy Base class,
+            we can access this variable directly to create and store data
+        '''
+
+        __tablename__ = "dated_locations"
+        id = Column(Integer, autoincrement=True, primary_key=True)
+        latitude = Column(Float)
+        longitude = Column(Float)
+        date = Column(Date)
+        assaults = Column(Integer)
+        murders = Column(Integer)
+        thefts = Column(Integer)
+        rapes = Column(Integer)
+        gta = Column(Integer)
+        robberies = Column(Integer)
+        other = Column(Integer)
+
+
+class MasterCrimeTable(Base):
+    '''
+        This is the main data we store
+        Since it's inherited from the sqlalchemy Base class,
+        we can access this variable directly to create and store data
+    '''
+
+    __tablename__ = "master_crime_table"
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    date = Column(Date)
+    description = Column(String(40))
+
+
+def add_data_to_master(new_entry):
+    entry = DatedLocation(latitude=new_entry["latitude"], longitude=new_entry["longitude"],
+                          date=new_entry["date"], description=new_entry["description"]
+                          )
+    return entry
+
+
+def add_data_to_db(new_entry, db):
+    data_to_enter = DatedLocation(latitude=new_entry["latitude"], longitude=new_entry["longitude"],
+                                  assaults=new_entry['assault'], date=new_entry["date"],
+                                  murders=new_entry["murder"], rapes=new_entry["rape"],
+                                  thefts=new_entry["theft"], gta=new_entry["gta"],
+                                  robberies=new_entry["robbery"], other=new_entry["other"]
+                                  )
+    return data_to_enter
+
+
+def feed_master(entry):
+    data_to_enter = MasterCrimeTable(latitude=entry["latitude"], longitude=entry["longitude"],
+                                     date=entry["date"], description=entry["description"])
+    return data_to_enter
+

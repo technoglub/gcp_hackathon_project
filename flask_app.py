@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, request
+from flask import Flask, request, Response
 import json
 from sqlalchemy import and_
 # user library that contains the format for table entries.
@@ -16,13 +16,16 @@ def make_db_query():
 
     ''' hits the database based on url parameters '''
 
-    d_arr = []
+    data_array = []
     # ip.addr/testing?lat=12.34&lon=43.21
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
-
-    lat = float(lat)
-    lon = float(lon)
+    # Thre's no reason we should take anything other than numbers as an input
+    try:
+        lat = float(lat)
+        lon = float(lon)
+    except Exception as e: # Can't give hackers any clues so same output as any other generic error.
+        return "No data available"
 
     upper_lat = float(lat + 0.1)
     upper_lon = float(lon + 0.1)
@@ -42,48 +45,76 @@ def make_db_query():
             if i != "_sa_instance_state" and i != "id":
                 entry_json[i] = j
 
-        d_arr.append(entry_json)
+        data_array.append(entry_json)
 
-    data_to_ret = json.dumps(d_arr)
+    data_to_ret = json.dumps(data_array)
     db.Session.flush()
     db.Session.commit()
-    # threaded_session.remove()
-    print(len(d_arr))
+
     return data_to_ret
-
-
-def get_valid_coords(lat, lon):
-
-    ''' returns a list of coordinate tuples to check against the DB '''
-
-    lat = float(lat)
-    lon = float(lon)
-    valid_coords = []
-    range_x = 0.1
-    range_y = 0.1
-    for i in range(20):
-        for j in range(20):
-            # math: 20 * 0.01 is .2 so this list contains every coordinate +- 0.1 which is 400 coordinates... Maybe there's a query.get_if(latitude <= lat + 0.1 and latitude >= lat - 0.1)
-            valid_coords.append(("{0:.2f}".format(lat + range_x), "{0:.2f}".format(lon + range_y)))
-            range_y -= 0.01
-        range_y = 0.1
-        range_x -= 0.01
-    return valid_coords
 
 
 @app.route('/testing/dump')
 def dump_db():
+    ''' Gets all the data from the db and print it as json '''
 
+    def generate(t):
+        for k in t:
+            for v in k.items():
+                yield str(v) + '\n'
     a = []
-    for entry in db.Session.query(modals.Location).all():
+    for entry in db.Session.query(modals.Location).limit(2000).all():
         a.append(entry.__dict__)
 
-    to_ret = json.dumps(str(a))
-    return to_ret
+    return Response(generate(a), mimetype="text")
+
+
+@app.route("/single")
+def get_single():
+
+    schema = modals.get_location_schematic()
+    schema["rapes"] = 0
+    lat = request.args.get('lat', None)
+    lon = request.args.get('lon', None)
+    # Thre's no reason we should take anything other than numbers as an input
+    try:
+        lat = float(lat)
+        lon = float(lon)
+    except Exception as e: # Can't give hackers any clues so same output as any other generic error.
+        return "No data available"
+
+    upper_lat = float(lat + 0.01)
+    upper_lon = float(lon + 0.01)
+    lower_lat = float(lat - 0.01)
+    lower_lon = float(lon - 0.01)
+
+    data_array = []
+
+    for entry in db.Session.query(modals.Location).filter(and_(
+        modals.Location.longitude <= upper_lon, modals.Location.longitude >= lower_lon,
+        modals.Location.latitude <= upper_lat, modals.Location.latitude >= lower_lat
+                                                                    )):
+        d = entry.__dict__
+        entry_json = dict()
+        for i, j in d.items():
+            if i != "_sa_instance_state" and i != "id":
+                entry_json[i] = j
+
+        data_array.append(entry_json)
+
+    for i in data_array:
+        for k, v in i.items():
+            if k == "longitude" or k == "latitude":
+                continue
+            schema[k] += v
+
+    return json.dumps(schema)
+
+
 
 @app.route('/')
 def ret_none():
-    return "No data available";
+    return "No data available"
 
 
 @app.route('/json')
@@ -91,6 +122,7 @@ def ret_json():
     with open("json_updated.json") as f:
         json_data = f.read()
     return json_data
+
 
 @app.errorhandler(404)
 def get404d(num):
@@ -142,5 +174,17 @@ def ret_coords(variable):
     return new_json
 
 
+def transform():
+    db.base.prepare(db.engine, reflect=True)
+    master_list = []
+    master = modals.MasterCrimeTable
+    master.prepare(db.engine, reflect=True)
+    for entry in db.Session.query(master):
+        master_list.append(entry.__dict__)
+
+    print(master_list)
+
+
 if __name__ == "__main__":
+
     app.run("0.0.0.0", debug=True, port=5000)

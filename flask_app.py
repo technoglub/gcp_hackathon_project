@@ -189,8 +189,4 @@ def transform():
 
 if __name__ == "__main__":
 
-<<<<<<< HEAD
     app.run("0.0.0.0", debug=False, port=80)
-=======
-    app.run("0.0.0.0", debug=True, port=5000)
->>>>>>> 049dcd18c1aae4abb452121fdfaada8607d0d944

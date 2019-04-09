@@ -24,8 +24,8 @@ db = modals.CloudDB()
 def make_db_query():
 
     ''' hits the database based on url parameters '''
-
-    data_array = []
+    schematic = modals.get_location_schematic()
+    data_array = [schematic for i in range(100)] # initialize an array of 100 full of 0's
     # ip.addr/testing?lat=12.34&lon=43.21
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
@@ -39,11 +39,18 @@ def make_db_query():
     if lat is None or lon is None:
         return "No data available"
 
+    # So this is a total difference of .1 lat/lon which is 7 miles
+    upper_lat = float(lat + 0.05)
+    upper_lon = float(lon + 0.05)
+    lower_lat = float(lat - 0.05)
+    lower_lon = float(lon - 0.05)
 
-    upper_lat = float(lat + 0.1)
-    upper_lon = float(lon + 0.1)
-    lower_lat = float(lat - 0.1)
-    lower_lon = float(lon - 0.1)
+    # The algorithm to actually append values to a data array of 100:
+    # The dead center of the array a[49](?)
+    # The further north the latitude, the smaller the y value
+    # the further east the longitude, the larger the x value
+    # data_array[ y * 10 + x] where x and y are less than 10.
+
 
 
     for entry in db.Session.query(modals.Location).filter(and_(
@@ -55,13 +62,20 @@ def make_db_query():
         for i, j in d.items():
             if i != "_sa_instance_state" and i != "id":
                 entry_json[i] = j
+        y = round(entry_json["longitude"], 2)
+        x = round(entry_json["latitude"], 2)
+        ydiff = int(((y - lon) + 0.05) * 100)
+        xdiff = int(((x - lat) + 0.05) * 100)
 
-        data_array.append(entry_json)
-
+        for k, v in entry_json.items():
+            if k == "latitude" or k == "longitude":
+                data_array[10 * ydiff + xdiff][k] = round(v, 2)
+            else:
+                data_array[10 * ydiff + xdiff][k] += round(v, 2)
     data_to_ret = json.dumps(data_array)
     db.Session.flush()
     db.Session.commit()
-
+    print(len(data_array))
     return data_to_ret
 
 
@@ -187,4 +201,4 @@ def ret_coords(variable):
 
 if __name__ == "__main__":
 
-    app.run("0.0.0.0", debug=False, port=80)
+    app.run("0.0.0.0", debug=True, port=5000)

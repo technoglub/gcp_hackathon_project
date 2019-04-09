@@ -8,12 +8,14 @@ db = modals.CloudDB()
 
 
 def convert_master_to_user(db_item):
-
+    # first iteration of converting master_db entries to user_interface entries
     interface_schematic = modals.get_location_schematic()  # the dictionary to manipulate
     usr_schema = modals.UserInterface()
 
     desc = db_item["description"].lower()
 
+
+    # This is part of the code that we would want to tune.
     if "assault" in desc:
         interface_schematic["assaults"] += 1
     elif "murder" in desc:
@@ -32,6 +34,7 @@ def convert_master_to_user(db_item):
     db_item["latitude"] = interface_schematic["latitude"]
     db_item["longitude"] = interface_schematic["longitude"]
 
+    # create the sqlAlchemy object to be inserted into the new table
     usr_schema = modals.UserInterface(latitude=interface_schematic["latitude"], longitude=interface_schematic["longitude"],
                                       assaults=interface_schematic["assaults"], murders=interface_schematic["murders"],
                                       thefts=interface_schematic["thefts"], rapes=interface_schematic["rapes"],
@@ -41,7 +44,8 @@ def convert_master_to_user(db_item):
 
 
 def add_to_user_interface(master_list):
-
+    # Iterates through a list of entries and then saves them in a database all at once.
+    # Much faster than individual commits
     done = False
     bulk_entries = []
     while not done:
@@ -59,7 +63,7 @@ def transform():
     n_lower = 0
     lim = 60000
     total_entries = 3000000
-    ''' Notes
+    ''' Notes as of 3/9/2019
     lon lower: -122.59
     lon upper: -73.7088
     lat upper: 47.3116
@@ -102,6 +106,8 @@ def transform():
             lon_lower = lon_mid
 
         master_list = []
+
+        # I need to change this to something that makes more sense.
         for entry in db.Session.query(master).filter(and_(master.longitude < lon_upper,
                                                           master.longitude >= lon_lower)).limit(500):
 

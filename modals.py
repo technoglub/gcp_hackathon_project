@@ -167,7 +167,3 @@ def feed_master(entry):
     data_to_enter = MasterCrimeTable(latitude=entry["latitude"], longitude=entry["longitude"],
                                      date=entry["date"], description=entry["description"])
     return data_to_enter
-<<<<<<< HEAD
-=======
-
->>>>>>> 049dcd18c1aae4abb452121fdfaada8607d0d944

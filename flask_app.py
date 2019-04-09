@@ -5,6 +5,15 @@ from sqlalchemy import and_
 # user library that contains the format for table entries.
 import modals
 
+''' FEATURE:
+    
+    Safest route to location. 
+    User picks place to go via map
+    google maps api gives us path based on our own parameters <---- DO this first, fail faster
+    Display the path
+    
+'''
+
 
 app = Flask(__name__)
 
@@ -174,17 +183,6 @@ def ret_coords(variable):
     if j in json_data:
         new_json = json.dumps(json_data[j])
     return new_json
-
-
-def transform():
-    db.base.prepare(db.engine, reflect=True)
-    master_list = []
-    master = modals.MasterCrimeTable
-    master.prepare(db.engine, reflect=True)
-    for entry in db.Session.query(master):
-        master_list.append(entry.__dict__)
-
-    print(master_list)
 
 
 if __name__ == "__main__":

@@ -167,3 +167,4 @@ def feed_master(entry):
     data_to_enter = MasterCrimeTable(latitude=entry["latitude"], longitude=entry["longitude"],
                                      date=entry["date"], description=entry["description"])
     return data_to_enter
+

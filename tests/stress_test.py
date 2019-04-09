@@ -19,7 +19,7 @@ class StressTester():
         self.port = 5000
         self.threads = []
         self.q = queue.Queue()
-        self.tasks = 2000
+        self.tasks = 1000
 
     def stress_test(self):
         '''Creates a bunch of threads to spam the servers
@@ -34,7 +34,12 @@ class StressTester():
         start = datetime.now()
         indx = random.randint(0,5)
         locs = ["34.13,-117.27", "34.07,-117.28", "34.52,-117.43", "34.52,-117.43", "34.08,-117.24", "34.10,-117.28"]
-        r = requests.get(self.url + locs[indx])
+        x, y = locs[indx].split(',')
+        y = float(y)
+        y *= -1
+        y = str(y)
+
+        r = requests.get(self.url + "testing?lat=" + x + "&lon=" + y)
         time = datetime.now() - start
         self.q.put(item=time, block=True)
 

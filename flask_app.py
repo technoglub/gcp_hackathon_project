@@ -25,7 +25,7 @@ def make_db_query():
 
     ''' hits the database based on url parameters '''
     schematic = modals.get_location_schematic()
-    data_array = [schematic for i in range(100)] # initialize an array of 100 full of 0's
+    data_array = [schematic.copy() for i in range(100)] # initialize an array of 100 full of 0's
     # ip.addr/testing?lat=12.34&lon=43.21
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
@@ -52,13 +52,14 @@ def make_db_query():
     # data_array[ y * 10 + x] where x and y are less than 10.
 
 
-
+    cnt = 0
     for entry in db.Session.query(modals.Location).filter(and_(
         modals.Location.longitude <= upper_lon, modals.Location.longitude >= lower_lon,
         modals.Location.latitude <= upper_lat, modals.Location.latitude >= lower_lat
                                                                     )):
         d = entry.__dict__
         entry_json = dict()
+        cnt+=1
         for i, j in d.items():
             if i != "_sa_instance_state" and i != "id":
                 entry_json[i] = j
@@ -75,7 +76,7 @@ def make_db_query():
     data_to_ret = json.dumps(data_array)
     db.Session.flush()
     db.Session.commit()
-    print(len(data_array))
+    print(cnt)
     return data_to_ret
 
 

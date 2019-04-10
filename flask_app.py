@@ -25,7 +25,7 @@ def make_db_query():
 
     ''' hits the database based on url parameters '''
     schematic = modals.get_location_schematic()
-    data_array = [schematic.copy() for i in range(100)] # initialize an array of 100 full of 0's
+    data_array = [schematic.copy() for i in range(111)] # initialize an array of 100 full of 0's
     # ip.addr/testing?lat=12.34&lon=43.21
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
@@ -89,7 +89,7 @@ def dump_db():
             for v in k.items():
                 yield str(v) + '\n'
     a = []
-    for entry in db.Session.query(modals.Location).limit(2000).all():
+    for entry in db.Session.query(modals.Location).all():
         a.append(entry.__dict__)
 
     return Response(generate(a), mimetype="text")
@@ -202,4 +202,4 @@ def ret_coords(variable):
 
 if __name__ == "__main__":
 
-    app.run("0.0.0.0", debug=True, port=5000)
+    app.run("0.0.0.0", debug=False, port=80)

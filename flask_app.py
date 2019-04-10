@@ -1,14 +1,45 @@
 #!/usr/bin/env python3
-from flask import Flask
+from flask import Flask, request
 import json
-import re
+from sqlalchemy.orm import sessionmaker
+
+# user library that contains the format for table entries.
+import modals
+
 
 app = Flask(__name__)
+
+db = modals.CloudDB()
+
+
+@app.route('/testing')
+def make_db_query():
+
+    d_arr = []
+    lat = request.args.get('lat', None)
+    lon = request.args.get('lon', None)
+
+    if lat is None or lon is None:
+        return "No data available"
+
+    for entry in db.Session.query(modals.Location).filter_by(latitude=lat, longitude=lon).all():
+
+        d = entry.__dict__
+        entry_json = dict()
+        for k, v in d.items():
+            if k != "_sa_instance_state":
+                entry_json[k] = v
+
+        entry_json = json.dumps(str(entry_json))
+        d_arr.append(entry_json)
+
+    db.Session.close()
+    return str(entry_json)
 
 
 @app.route('/')
 def ret_none():
-    return "No data available\n";
+    return "No data available";
 
 
 @app.route('/json')
@@ -37,7 +68,6 @@ def ret_coords(variable):
     if not ',' in variable:
         return "Invalid format"
 
-    print(variable)
     # Read the formatted data and compare it to the GPS coordinates
     with open("json_updated.json") as f:
         json_data = f.read()
@@ -48,8 +78,6 @@ def ret_coords(variable):
     # get the latitude and longitude from the URL with ',' as a delimiter
     lat, lon = variable.split(',')
 
-    print(lat)
-    print(lon)
     try:
         lat = "{0:.2f}".format(float(lat))
         lon = "{0:.2f}".format(float(lon))
@@ -71,4 +99,4 @@ def ret_coords(variable):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=False, port=80)
+    app.run("0.0.0.0", debug=True, port=5000)

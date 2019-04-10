@@ -1,12 +1,13 @@
+#!./../env/bin/python3
+import sys
 import requests
 
 
-
-class test_url():
+class TestUrl:
     '''Class that tests url endpoints to make sure the output is what's expected'''
 
     def __init__(self):
-        self.url = 'http://127.0.0.1:80/'
+        self.url = 'http://127.0.0.1:5000/'
         self.bad_lat = '123'
         self.bad_lon = '456'
         self.good_lat = '34.10'
@@ -50,7 +51,14 @@ class test_url():
         self.assert_200(r)
 
 def run_tests():
-    tester = test_url()
+    tester = TestUrl()
+
+    try:
+        tester.url = sys.argv[1]
+
+    except:
+        pass
+
     print("Testing empty string")
     tester.test_empty()
 
@@ -65,6 +73,6 @@ def run_tests():
 
     print("Testing if two or more commas")
     tester.test_two_comma()
-
+    print("All tests passed")
 
 run_tests()

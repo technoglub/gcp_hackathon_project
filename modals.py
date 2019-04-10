@@ -2,6 +2,7 @@ from sqlalchemy import String, Column, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
+import credentials
 
 
 metadata = MetaData()
@@ -15,8 +16,8 @@ Base = declarative_base()
 
 class CloudDB:
 
-    user = ''
-    paswd = ''
+    user = credentials.user
+    paswd = credentials.passwd
     dialect = 'mysql+pymysql' # db_type + python_driver
     server = ''
     port = '3306'

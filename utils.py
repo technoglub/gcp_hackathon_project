@@ -1,5 +1,6 @@
 import modals
 from sqlalchemy import and_
+import datetime
 
 ''' utilities to convert data from one database to another '''
 
@@ -60,69 +61,63 @@ def add_to_user_interface(master_list):
 
 def transform():
     master = modals.MasterCrimeTable
-    n_lower = 0
-    lim = 60000
-    total_entries = 3000000
+
     ''' Notes as of 3/9/2019
     lon lower: -122.59
     lon upper: -73.7088
     lat upper: 47.3116
     lat lower: 33.706
+    
+    Date recent: 03/31/2019
+    date oldest: 01/01/2001 ; There are older dates, but I figure they're not relevant
     '''
     # the bounds of the current data set.
     # TODO: make a function to do this automatically
-    latL = 25.72
-    latU = 50.13
-    lonL = -125.9
-    lonU = -50.71
+    start_yr = 2001
+    start_month = 1
+    start_day = 1
+    end_yr = 2019
+    end_month = 3
+    end_day = 31
 
-    lat = latL
-    lon = lonL
-    n = lim
+    cur_yr = 2001
+    cur_mnth = 2
+    cur_day = 1
+
+    oldest_dt = datetime.datetime(start_yr, start_month, start_day)
+    newest_dt = datetime.datetime(end_yr, end_month, end_day)
+
+    dt_rng_old = oldest_dt
+    dt_rng_new = datetime.datetime(start_yr, start_month + 1, start_day)
+
+
     done = False
-    lat_mid = (latU - latL) / 2 + latL
-    lon_mid = (lonU - lonL) / 2 + lonL
     cnt = 0
+
+    # TODO: I need to make a dictionary that contains a dictionary DB entry, and a month counter to divide each
+    # entry by the amount of months of data it has
+
     while not done:
-        if cnt % 4 == 0:
-            lat_upper = lat_mid
-            lon_upper = lon_mid
-            lat_lower = latL
-            lon_lower = lonU
-        elif cnt % 4 == 1:
-            lat_upper = latU
-            lon_upper = lon_mid
-            lat_lower = lat_mid
-            lon_lower = lonL
-        elif cnt % 4 == 2:
-            lat_upper = lat_mid
-            lon_upper = lonU
-            lat_lower = lonL
-            lon_lower = lon_mid
-        else:
-            lat_upper = latU
-            lon_upper = lonU
-            lat_lower = lat_mid
-            lon_lower = lon_mid
 
         master_list = []
 
-        # I need to change this to something that makes more sense.
-        for entry in db.Session.query(master).filter(and_(master.longitude < lon_upper,
-                                                          master.longitude >= lon_lower)).limit(500):
+        # get entries based on the month.
+        for entry in db.Session.query(master).filter(and_(master.date < dt_rng_new,
+                                                          master.date >= dt_rng_old)):
 
             master_list.append(entry.__dict__)
 
         if len(master_list) != 0:
             add_to_user_interface(master_list)
 
-        print(len(master_list))
-        lat += 20
-        if lat >= latU:
-            lon += 20
-            lat = -latL
-        cnt += 1
-    print("n", n)
+        cur_mnth += 1
+        if cur_mnth > 12:
+            cur_mnth = 1
+            cur_yr += 1
+
+        dt_rng_old = dt_rng_new
+        dt_rng_new = datetime.datetime(cur_yr, cur_mnth, cur_day)
+
 
 
 if __name__ == "__main__":

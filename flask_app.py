@@ -2,6 +2,7 @@
 from flask import Flask, request, Response
 import json
 from sqlalchemy import and_
+import logging
 # user library that contains the format for table entries.
 import modals
 
@@ -199,6 +200,13 @@ def ret_coords(variable):
     return new_json
 
 
-if __name__ == "__main__":
+@app.errorhandler(500)
+def page_not_found():
+	with open("log.log", "a+") as f:
+		s = request.path
+		f.write(s + "\n")
+	return "500", 500
 
+
+if __name__ == "__main__":
     app.run("0.0.0.0", debug=False, port=80)

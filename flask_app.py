@@ -68,11 +68,12 @@ def make_db_query():
         x = round(entry_json["latitude"], 2)
         ydiff = int(((y - lon) + 0.05) * 100)
         xdiff = int(((x - lat) + 0.05) * 100)
+        indx = 10 * ydiff + xdiff
         for k, v in entry_json.items():
             if k == "latitude" or k == "longitude":
-                data_array[10 * ydiff + xdiff][k] = round(v, 2)
+                data_array[indx][k] = round(v, 2)
             else:
-                data_array[10 * ydiff + xdiff][k] += round(v, 2)
+                data_array[indx][k] += round(v, 2)
     data_to_ret = json.dumps(data_array)
     db.Session.flush()
     db.Session.commit()

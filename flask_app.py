@@ -30,6 +30,7 @@ def make_db_query():
     # ip.addr/testing?lat=12.34&lon=43.21
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
+    Session = db.get_session()
     # Thre's no reason we should take anything other than numbers as an input
     try:
         lat = float(lat)
@@ -54,7 +55,7 @@ def make_db_query():
 
 
     cnt = 0
-    for entry in db.Session.query(modals.Location).filter(and_(
+    for entry in Session.query(modals.Location).filter(and_(
         modals.Location.longitude <= upper_lon, modals.Location.longitude >= lower_lon,
         modals.Location.latitude <= upper_lat, modals.Location.latitude >= lower_lat
                                                                     )):
@@ -76,6 +77,12 @@ def make_db_query():
                 data_array[indx][k] += round(v, 2)
     data_to_ret = json.dumps(data_array)
 
+    try:
+        Session.flush()
+        Session.commit()
+    finally:
+        Session.close()
+
     print(cnt)
     return data_to_ret
 
@@ -89,9 +96,14 @@ def dump_db():
             for v in k.items():
                 yield str(v) + '\n'
     a = []
-    for entry in db.Session.query(modals.Location).all():
+    Session = db.get_session()
+    for entry in Session.query(modals.Location).all().limit(2000):
         a.append(entry.__dict__)
-
+    try:
+        Session.commit()
+        Session.flush()
+    finally:
+        Session.close()
     return Response(generate(a), mimetype="text")
 
 
@@ -116,7 +128,9 @@ def get_single():
 
     data_array = []
 
-    for entry in db.Session.query(modals.Location).filter(and_(
+    Session = db.get_session()
+
+    for entry in Session.query(modals.Location).filter(and_(
         modals.Location.longitude <= upper_lon, modals.Location.longitude >= lower_lon,
         modals.Location.latitude <= upper_lat, modals.Location.latitude >= lower_lat
                                                                     )):
@@ -133,6 +147,11 @@ def get_single():
             if k == "longitude" or k == "latitude":
                 continue
             schema[k] += v
+    try:
+        Session.commit()
+        Session.flush()
+    finally:
+        Session.close()
     print(schema)
     return json.dumps(schema)
 

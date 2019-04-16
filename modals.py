@@ -30,6 +30,7 @@ def create_table(db):
 
     return locs
 
+
 def get_location_schematic():
     data_to_enter = dict()
     data_to_enter["gta"] = 0
@@ -40,6 +41,8 @@ def get_location_schematic():
     data_to_enter["robberies"] = 0
     data_to_enter["other"] = 0
     data_to_enter["date"] = 0
+    data_to_enter["latitude"] = 0.0
+    data_to_enter["longitude"] = 0.0
     return data_to_enter
 
 
@@ -57,10 +60,14 @@ class CloudDB:
         self.base = Base
         self.url = self.dialect + '://' + self.user + ':' + self.paswd + '@' + self.server + ":" + self.port + '/' + self.db
         self.engine = create_engine(self.url, echo=True, pool_recycle=3600, pool_size=20, max_overflow=0)
+
+
+    def get_session(self):
+
         session = sessionmaker()
         session.configure(bind=self.engine)
-        self.Session = session()
-
+        Session = session()
+        return Session
 
     def make_scoped_session(self):
 

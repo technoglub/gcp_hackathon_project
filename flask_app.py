@@ -21,6 +21,60 @@ app = Flask(__name__)
 db = modals.CloudDB()
 
 
+@app.route("/user_interface")
+def grab_from_user_interface():
+    # ip.addr/testing?lat=12.34&lon=43.21
+    lat = request.args.get('lat', None)
+    lon = request.args.get('lon', None)
+    Session = db.get_session()
+
+    # Thre's no reason we should take anything other than numbers as an input
+    try:
+        lat = float(lat)
+        lon = float(lon)
+    except Exception as e: # Can't give hackers any clues so same output as any other generic error.
+        return "No data available"
+
+    if lat is None or lon is None:
+        return "No data available"
+
+    # So this is a total difference of .1 lat/lon which is 7 miles
+    upper_lat = float(lat + 0.05)
+    upper_lon = float(lon + 0.05)
+    lower_lat = float(lat - 0.05)
+    lower_lon = float(lon - 0.05)
+
+    data_array = []
+
+    for entry in Session.query(modals.Location).filter(and_(
+        modals.UserInterface.longitude <= upper_lon, modals.UserInterface.longitude >= lower_lon,
+        modals.UserInterface.latitude <= upper_lat, modals.UserInterface.latitude >= lower_lat
+                                                                    )):
+        d = entry.__dict__
+        entry_json = dict()
+        for i, j in d.items():
+            if i != "_sa_instance_state" and i != "id":
+                entry_json[i] = j
+        y = entry_json["longitude"]
+        x = entry_json["latitude"]
+        ydiff = int(((y - lon) + 0.05) * 100)
+        xdiff = int(((x - lat) + 0.05) * 100)
+        indx = 10 * ydiff + xdiff
+        for k, v in entry_json.items():
+            if k == "latitude" or k == "longitude":
+                data_array[indx][k] = round(v, 2)
+            else:
+                data_array[indx][k] += round(v, 2)
+    data_to_ret = json.dumps(data_array)
+
+    try:
+        Session.flush()
+        Session.commit()
+    finally:
+        Session.close()
+
+    return data_to_ret
+
 @app.route('/testing')
 def make_db_query():
 
@@ -217,20 +271,6 @@ def ret_coords(variable):
     if j in json_data:
         new_json = json.dumps(json_data[j])
     return new_json
-
-
-@app.errorhandler(500)
-def page_not_found():
-	with open("log.log", "a+") as f:
-		s = request.path
-		f.write(s + "\n")
-	return "500", 500
-
-
-@app.teardown_request
-def session_clear(exception=None):
-    if exception and db.Session.is_active:
-        db.Session.rollback()
 
 
 if __name__ == "__main__":

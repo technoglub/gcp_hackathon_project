@@ -46,7 +46,7 @@ def grab_from_user_interface():
 
     data_array = []
 
-    for entry in Session.query(modals.Location).filter(and_(
+    for entry in Session.query(modals.UserInterface).filter(and_(
         modals.UserInterface.longitude <= upper_lon, modals.UserInterface.longitude >= lower_lon,
         modals.UserInterface.latitude <= upper_lat, modals.UserInterface.latitude >= lower_lat
                                                                     )):

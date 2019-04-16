@@ -75,8 +75,7 @@ def make_db_query():
             else:
                 data_array[indx][k] += round(v, 2)
     data_to_ret = json.dumps(data_array)
-    db.Session.flush()
-    db.Session.commit()
+
     print(cnt)
     return data_to_ret
 
@@ -110,10 +109,10 @@ def get_single():
     except Exception as e: # Can't give hackers any clues so same output as any other generic error.
         return "No data available"
 
-    upper_lat = float(lat + 0.01)
-    upper_lon = float(lon + 0.01)
-    lower_lat = float(lat - 0.01)
-    lower_lon = float(lon - 0.01)
+    upper_lat = float(lat + 0.05)
+    upper_lon = float(lon + 0.05)
+    lower_lat = float(lat - 0.05)
+    lower_lon = float(lon - 0.05)
 
     data_array = []
 
@@ -134,7 +133,7 @@ def get_single():
             if k == "longitude" or k == "latitude":
                 continue
             schema[k] += v
-
+    print(schema)
     return json.dumps(schema)
 
 
@@ -207,6 +206,12 @@ def page_not_found():
 		s = request.path
 		f.write(s + "\n")
 	return "500", 500
+
+
+@app.teardown_request
+def session_clear(exception=None):
+    if exception and db.Session.is_active:
+        db.Session.rollback()
 
 
 if __name__ == "__main__":

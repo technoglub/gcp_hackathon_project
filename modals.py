@@ -56,7 +56,7 @@ class CloudDB:
         self.metadata = metadata
         self.base = Base
         self.url = self.dialect + '://' + self.user + ':' + self.paswd + '@' + self.server + ":" + self.port + '/' + self.db
-        self.engine = create_engine(self.url, echo=True, pool_recycle=3600)
+        self.engine = create_engine(self.url, echo=True, pool_recycle=3600, pool_size=20, max_overflow=0)
         session = sessionmaker()
         session.configure(bind=self.engine)
         self.Session = session()

@@ -27,6 +27,8 @@ def grab_from_user_interface():
     lat = request.args.get('lat', None)
     lon = request.args.get('lon', None)
     Session = db.get_session()
+    schematic = modals.get_location_schematic()
+    data_array = [schematic.copy() for i in range(111)]
 
     # Thre's no reason we should take anything other than numbers as an input
     try:

@@ -46,8 +46,6 @@ def grab_from_user_interface():
     lower_lat = float(lat - 0.05)
     lower_lon = float(lon - 0.05)
 
-    data_array = []
-
     for entry in Session.query(modals.UserInterface).filter(and_(
         modals.UserInterface.longitude <= upper_lon, modals.UserInterface.longitude >= lower_lon,
         modals.UserInterface.latitude <= upper_lat, modals.UserInterface.latitude >= lower_lat
@@ -64,9 +62,9 @@ def grab_from_user_interface():
         indx = 10 * ydiff + xdiff
         for k, v in entry_json.items():
             if k == "latitude" or k == "longitude":
-                data_array[indx][k] = round(v, 2)
+                data_array[indx][k] = v
             else:
-                data_array[indx][k] += round(v, 2)
+                data_array[indx][k] += v
     data_to_ret = json.dumps(data_array)
 
     try:

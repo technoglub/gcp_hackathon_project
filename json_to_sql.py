@@ -40,7 +40,7 @@ def convert_json_to_db(key ,data, session):
     lat = float(lat)
     lon = float(lon)
     lon *= -1
-    data_to_input = modals.Location(latitude=lat, longitude=lon, assaults=data['ASSAULT'],
+    data_to_input = modals.UserInterface(latitude=lat, longitude=lon, assaults=data['ASSAULT'],
                                     murders=data["MURDER"], rapes=data["RAPE"],
                                     thefts=data["THEFT"], gta=data["GTA"],
                                     robberies=data["ROBBERY"], other=data["OTHER"]
@@ -59,7 +59,7 @@ def main():
     loc_vals = json.loads(json_data)
 
     for keys in loc_vals:
-        convert_json_to_db(keys, loc_vals[keys], db.Session)
+        convert_json_to_db(keys, loc_vals[keys], db.get_session())
 
 
 main()

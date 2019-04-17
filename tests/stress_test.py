@@ -19,7 +19,7 @@ class StressTester():
         self.port = 5000
         self.threads = []
         self.q = queue.Queue()
-        self.tasks = 1000
+        self.tasks = 300
 
     def stress_test(self):
         '''Creates a bunch of threads to spam the servers
@@ -28,6 +28,7 @@ class StressTester():
         for i in range(self.tasks):
             t = threading.Thread(target=self.make_request)
             t.start()
+        t.join()
 
     def make_request(self):
         ''' Picks a random known coordinate '''
@@ -36,12 +37,11 @@ class StressTester():
         locs = ["34.13,-117.27", "34.07,-117.28", "34.52,-117.43", "34.52,-117.43", "34.08,-117.24", "34.10,-117.28"]
         x, y = locs[indx].split(',')
         y = float(y)
-        y *= -1
         y = str(y)
 
         r = requests.get(self.url + "testing?lat=" + x + "&lon=" + y)
         time = datetime.now() - start
-        self.q.put(item=time, block=True)
+        self.q.put(item=time, block=False)
 
 
 def main():
@@ -78,7 +78,7 @@ def main():
     for i in timings:
         avg += i.total_seconds()
     avg /= len(timings)
-    print("Average = ", avg)
+    print("Average Time per request = ", avg)
     time_it_took = datetime.now() - start_time
     print("Script ran for a total of ", time_it_took.total_seconds())
     print(tester.tasks/time_it_took.total_seconds(), " requests per second")

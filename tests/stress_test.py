@@ -14,21 +14,27 @@ class StressTester():
         if there's an IP passed in, it will use that instead.
     '''
 
-    def __init__(self, url="http://LOCALHOST:5000/"):
+    def __init__(self, url="http://LOCALHOST:5000/", tasks=3000):
         self.url = url
         self.port = 5000
         self.threads = []
         self.q = queue.Queue()
-        self.tasks = 300
+        self.tasks = tasks
 
     def stress_test(self):
         '''Creates a bunch of threads to spam the servers
         '''
+        t_arr = []
 
         for i in range(self.tasks):
             t = threading.Thread(target=self.make_request)
-            t.start()
-        t.join()
+            t_arr.append(t)
+
+        for thread in t_arr:
+            thread.start()
+
+        for thread in t_arr:
+            thread.join()
 
     def make_request(self):
         ''' Picks a random known coordinate '''
@@ -39,9 +45,11 @@ class StressTester():
         y = float(y)
         y = str(y)
 
-        r = requests.get(self.url + "testing?lat=" + x + "&lon=" + y)
+        r = requests.get(self.url + "?lat=" + x + "&lon=" + y)
+        if r.status_code > 300:
+            print(r.status_code)
         time = datetime.now() - start
-        self.q.put(item=time, block=False)
+        self.q.put(item=time, block=True)
 
 
 def main():
@@ -58,9 +66,11 @@ def main():
         if dot_count != 3:
             print("Invalid format")
             return
+        if sys.argv[2]:
+            tasks = int(sys.argv[2])
 
         # initialize the testing class if the input is valid
-        tester = StressTester(ip)
+        tester = StressTester(ip, tasks=tasks)
     except IndexError:
         tester = StressTester()
         pass

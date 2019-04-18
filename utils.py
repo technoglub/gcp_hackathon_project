@@ -13,9 +13,9 @@ def convert_master_to_user(interface_schematic):
 
     # create the sqlAlchemy object to be inserted into the new table
     usr_schema = modals.UserInterface(latitude=interface_schematic["latitude"], longitude=interface_schematic["longitude"],
-                                      assaults=interface_schematic["assaults"], murders=interface_schematic["murders"],
-                                      thefts=interface_schematic["thefts"], rapes=interface_schematic["rapes"],
-                                      gta=interface_schematic["gta"], robberies=interface_schematic["robberies"],
+                                      assault=interface_schematic["assaults"], murder=interface_schematic["murders"],
+                                      theft=interface_schematic["thefts"], sexual_assault=interface_schematic["rapes"],
+                                      gta=interface_schematic["gta"], robbery=interface_schematic["robberies"],
                                       other=interface_schematic["other"])
     return usr_schema
 

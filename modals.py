@@ -16,7 +16,8 @@ Base = declarative_base()
 def create_table(db):
     locs = Table('user_interface', metadata,
                  Column('id',Integer, primary_key=True, autoincrement=True),
-                 Column("date", Date),
+                 Column("latitude", Float),
+                 Column("longitude", Float),
                  Column("gta", Integer),
                  Column("assault", Integer),
                  Column("murder", Integer),
@@ -45,13 +46,27 @@ def get_location_schematic():
     data_to_enter["longitude"] = 0.0
     return data_to_enter
 
+def get_user_interface_schematic():
+    data_to_enter = dict()
+    data_to_enter["gta"] = 0
+    data_to_enter["assault"] = 0
+    data_to_enter["murder"] = 0
+    data_to_enter["theft"] = 0
+    data_to_enter["sexual_assault"] = 0
+    data_to_enter["robbery"] = 0
+    data_to_enter["other"] = 0
+    data_to_enter["date"] = 0
+    data_to_enter["latitude"] = 0.0
+    data_to_enter["longitude"] = 0.0
+    return data_to_enter
+
 
 class CloudDB:
 
-    user = ''
-    paswd = ''
+    user = 'root'
+    paswd = 'valdi0209'
     dialect = 'mysql+pymysql' # db_type + python_driver
-    server = ''
+    server = '35.193.63.45'
     port = '3306'
     db = 'android_backend' # database created via googles UI
 
@@ -109,13 +124,14 @@ class UserInterface(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)
     latitude = Column(Float)
     longitude = Column(Float)
-    assaults = Column(Integer)
-    murders = Column(Integer)
-    thefts = Column(Integer)
-    rapes = Column(Integer)
+    assault = Column(Integer)
+    murder = Column(Integer)
+    theft = Column(Integer)
+    sexual_assault = Column(Integer)
     gta = Column(Integer)
-    robberies = Column(Integer)
+    robbery = Column(Integer)
     other = Column(Integer)
+
 
 class DatedLocation(Base):
         '''
@@ -153,13 +169,6 @@ class MasterCrimeTable(Base):
     description = Column(String(40))
 
 
-def add_data_to_master(new_entry):
-    entry = DatedLocation(latitude=new_entry["latitude"], longitude=new_entry["longitude"],
-                          date=new_entry["date"], description=new_entry["description"]
-                          )
-    return entry
-
-
 def add_data_to_db(new_entry, db):
     data_to_enter = DatedLocation(latitude=new_entry["latitude"], longitude=new_entry["longitude"],
                                   assaults=new_entry['assault'], date=new_entry["date"],
@@ -174,4 +183,5 @@ def feed_master(entry):
     data_to_enter = MasterCrimeTable(latitude=entry["latitude"], longitude=entry["longitude"],
                                      date=entry["date"], description=entry["description"])
     return data_to_enter
+
 

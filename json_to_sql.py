@@ -40,10 +40,10 @@ def convert_json_to_db(key ,data, session):
     lat = float(lat)
     lon = float(lon)
     lon *= -1
-    data_to_input = modals.UserInterface(latitude=lat, longitude=lon, assaults=data['ASSAULT'],
-                                    murders=data["MURDER"], rapes=data["RAPE"],
-                                    thefts=data["THEFT"], gta=data["GTA"],
-                                    robberies=data["ROBBERY"], other=data["OTHER"]
+    data_to_input = modals.UserInterface(latitude=lat, longitude=lon, assault=data['ASSAULT'],
+                                    murder=data["MURDER"], sexual_assault=data["RAPE"],
+                                    theft=data["THEFT"], gta=data["GTA"],
+                                    robbery=data["ROBBERY"], other=data["OTHER"]
                                     )
     session.add(data_to_input)
     session.flush()
